@@ -318,9 +318,201 @@ export const SLIDE_TEMPLATES: SlideTemplate[] = [
       },
     ],
     backgroundColor: '#2563eb',
-  }
+  },
+  // --- Mathematical Templates ---
+  {
+    name: 'Mathematical Formula',
+    type: 'math_formula',
+    elements: [
+      {
+        type: 'TEXT',
+        content: '[TITLE]',
+        style: {
+          position: 'absolute', left: '10%', top: '10%', width: '80%', height: 'auto',
+          fontSize: '36px', fontWeight: 'bold', color: '#1a1a1a', fontFamily: '"Montserrat", sans-serif', textAlign: 'center',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[FORMULA]',
+        style: {
+          position: 'absolute', left: '10%', top: '35%', width: '80%', height: 'auto',
+          fontSize: '32px', color: '#2563eb', fontFamily: '"Latin Modern Math", "Cambria Math", serif', textAlign: 'center', lineHeight: 1.8,
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[DESCRIPTION]',
+        style: {
+          position: 'absolute', left: '15%', top: '65%', width: '70%', height: 'auto',
+          fontSize: '20px', color: '#4b5563', fontFamily: '"Lato", sans-serif', textAlign: 'center', lineHeight: 1.6,
+        },
+      },
+    ],
+    backgroundColor: '#f9fafb',
+  },
+  {
+    name: 'Theorem & Proof',
+    type: 'theorem_proof',
+    elements: [
+      {
+        type: 'TEXT',
+        content: 'Theorem',
+        style: {
+          position: 'absolute', left: '8%', top: '10%', width: '84%', height: 'auto',
+          fontSize: '28px', fontWeight: 'bold', color: '#059669', fontFamily: '"Montserrat", sans-serif',
+          borderBottom: '2px solid #059669', paddingBottom: '8px',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[THEOREM]',
+        style: {
+          position: 'absolute', left: '8%', top: '22%', width: '84%', height: 'auto',
+          fontSize: '22px', color: '#1f2937', fontFamily: '"Latin Modern Math", "Cambria Math", serif', lineHeight: 1.6, fontStyle: 'italic',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: 'Proof',
+        style: {
+          position: 'absolute', left: '8%', top: '45%', width: '84%', height: 'auto',
+          fontSize: '28px', fontWeight: 'bold', color: '#dc2626', fontFamily: '"Montserrat", sans-serif',
+          borderBottom: '2px solid #dc2626', paddingBottom: '8px',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[PROOF]',
+        style: {
+          position: 'absolute', left: '8%', top: '57%', width: '84%', height: 'auto',
+          fontSize: '20px', color: '#374151', fontFamily: '"Lato", sans-serif', lineHeight: 1.7, whiteSpace: 'pre-wrap',
+        },
+      },
+    ],
+    backgroundColor: '#ffffff',
+  },
+  {
+    name: 'Mathematical Problem',
+    type: 'math_problem',
+    elements: [
+      {
+        type: 'TEXT',
+        content: 'Problem',
+        style: {
+          position: 'absolute', left: '8%', top: '8%', width: '84%', height: 'auto',
+          fontSize: '32px', fontWeight: 'bold', color: '#7c3aed', fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[PROBLEM]',
+        style: {
+          position: 'absolute', left: '8%', top: '20%', width: '84%', height: 'auto',
+          fontSize: '22px', color: '#1f2937', fontFamily: '"Latin Modern Math", "Cambria Math", serif', lineHeight: 1.6,
+          backgroundColor: '#f3f4f6', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #7c3aed',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: 'Solution',
+        style: {
+          position: 'absolute', left: '8%', top: '48%', width: '84%', height: 'auto',
+          fontSize: '32px', fontWeight: 'bold', color: '#059669', fontFamily: '"Montserrat", sans-serif',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[SOLUTION]',
+        style: {
+          position: 'absolute', left: '8%', top: '60%', width: '84%', height: 'auto',
+          fontSize: '20px', color: '#374151', fontFamily: '"Lato", sans-serif', lineHeight: 1.7, whiteSpace: 'pre-wrap',
+        },
+      },
+    ],
+    backgroundColor: '#ffffff',
+  },
+  {
+    name: 'Equation Steps',
+    type: 'equation_steps',
+    elements: [
+      {
+        type: 'TEXT',
+        content: '[TITLE]',
+        style: {
+          position: 'absolute', left: '10%', top: '8%', width: '80%', height: 'auto',
+          fontSize: '36px', fontWeight: 'bold', color: '#1a1a1a', fontFamily: '"Montserrat", sans-serif', textAlign: 'center',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[STEPS]',
+        style: {
+          position: 'absolute', left: '12%', top: '25%', width: '76%', height: 'auto',
+          fontSize: '24px', color: '#1f2937', fontFamily: '"Latin Modern Math", "Cambria Math", serif', lineHeight: 2.2,
+          whiteSpace: 'pre-wrap', textAlign: 'left',
+        },
+      },
+    ],
+    backgroundColor: '#fef3c7',
+  },
+  {
+    name: 'Definition Box',
+    type: 'definition',
+    elements: [
+      {
+        type: 'TEXT',
+        content: 'Definition',
+        style: {
+          position: 'absolute', left: '10%', top: '15%', width: '80%', height: 'auto',
+          fontSize: '28px', fontWeight: 'bold', color: '#0891b2', fontFamily: '"Montserrat", sans-serif', textAlign: 'center',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[TERM]',
+        style: {
+          position: 'absolute', left: '10%', top: '30%', width: '80%', height: 'auto',
+          fontSize: '32px', fontWeight: 'bold', color: '#1f2937', fontFamily: '"Montserrat", sans-serif', textAlign: 'center',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[DEFINITION]',
+        style: {
+          position: 'absolute', left: '12%', top: '48%', width: '76%', height: 'auto',
+          fontSize: '22px', color: '#374151', fontFamily: '"Lato", sans-serif', lineHeight: 1.7,
+          backgroundColor: '#e0f2fe', padding: '20px', borderRadius: '12px', borderLeft: '5px solid #0891b2',
+        },
+      },
+    ],
+    backgroundColor: '#ffffff',
+  },
+  {
+    name: 'Formula Derivation',
+    type: 'derivation',
+    elements: [
+      {
+        type: 'TEXT',
+        content: '[TITLE]',
+        style: {
+          position: 'absolute', left: '8%', top: '8%', width: '84%', height: 'auto',
+          fontSize: '36px', fontWeight: 'bold', color: '#ffffff', fontFamily: '"Montserrat", sans-serif', textAlign: 'center',
+        },
+      },
+      {
+        type: 'TEXT',
+        content: '[DERIVATION]',
+        style: {
+          position: 'absolute', left: '10%', top: '25%', width: '80%', height: 'auto',
+          fontSize: '22px', color: '#e5e7eb', fontFamily: '"Latin Modern Math", "Cambria Math", serif', lineHeight: 2,
+          whiteSpace: 'pre-wrap',
+        },
+      },
+    ],
+    backgroundColor: '#1e293b',
+  },
 ];
-
 
 // --- New Templates for Study Deck Mode ---
 export const STUDY_DECK_TEMPLATES: SlideTemplate[] = [

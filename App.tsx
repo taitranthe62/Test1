@@ -7,6 +7,7 @@ import SlidePreviewPanel from './components/SlidePreviewPanel';
 import EditorPanel from './components/EditorPanel';
 import PresentationView from './components/PresentationView';
 import TemplateGallery from './components/TemplateGallery';
+import LatexGuide from './components/LatexGuide';
 import AIGenerationModal, { DetailLevel } from './components/AIGenerationModal';
 import AILoadingModal from './components/AILoadingModal';
 import { Slide, SlideElement, TextElement, ImageElement, TemplateElement, SlideTemplate } from './types';
@@ -51,6 +52,7 @@ const App: React.FC = () => {
   // UI State
   const [isViewingPresentation, setIsViewingPresentation] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
+  const [showLatexGuide, setShowLatexGuide] = useState(false);
   const [showImageGallery, setShowImageGallery] = useState(false);
   const [showAIGenerationModal, setShowAIGenerationModal] = useState(false);
   const [aiLoadingState, setAiLoadingState] = useState<{ status: 'idle' | 'loading' | 'error'; message: string }>({ status: 'idle', message: '' });
@@ -533,6 +535,7 @@ const App: React.FC = () => {
         onAddElement={handleAddElement}
         onPresent={handlePresent}
         onShowTemplates={() => setShowTemplates(true)}
+        onShowLatexGuide={() => setShowLatexGuide(true)}
         onSave={handleSave}
         onLoad={handleLoad}
         onGenerate={() => setShowAIGenerationModal(true)}
@@ -565,6 +568,7 @@ const App: React.FC = () => {
       
       {isViewingPresentation && <PresentationView slides={slides} onExit={() => setIsViewingPresentation(false)} />}
       {showTemplates && <TemplateGallery onSelectTemplate={handleAddSlideFromTemplate} onClose={() => setShowTemplates(false)} />}
+      {showLatexGuide && <LatexGuide onClose={() => setShowLatexGuide(false)} />}
       {showAIGenerationModal && <AIGenerationModal onGenerate={handleAIGeneration} onClose={() => setShowAIGenerationModal(false)} isGenerating={aiLoadingState.status === 'loading'} />}
       <AILoadingModal status={aiLoadingState.status} message={aiLoadingState.message} onClose={() => setAiLoadingState({ status: 'idle', message: '' })} />
     </div>

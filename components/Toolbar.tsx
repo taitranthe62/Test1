@@ -19,6 +19,7 @@ interface ToolbarProps {
   onLoad: () => void;
   onGenerate: () => void;
   onDownload: () => void;
+  onShowLatexGuide: () => void;
   isGenerating: boolean;
   isDownloading: boolean;
 }
@@ -34,7 +35,7 @@ const ToolbarButton: React.FC<{ onClick: () => void; title: string; disabled?: b
     </button>
 );
 
-const Toolbar: React.FC<ToolbarProps> = ({ onAddSlide, onAddElement, onPresent, onShowTemplates, onSave, onLoad, onGenerate, isGenerating, onDownload, isDownloading }) => {
+const Toolbar: React.FC<ToolbarProps> = ({ onAddSlide, onAddElement, onPresent, onShowTemplates, onSave, onLoad, onGenerate, isGenerating, onDownload, isDownloading, onShowLatexGuide }) => {
   return (
     <div className="bg-white shadow-md p-2 flex items-center justify-between z-10 border-b border-gray-200">
       <div className="flex items-center space-x-1">
@@ -70,6 +71,14 @@ const Toolbar: React.FC<ToolbarProps> = ({ onAddSlide, onAddElement, onPresent, 
         </ToolbarButton>
       </div>
       <div className="flex items-center space-x-2">
+        <button 
+          onClick={onShowLatexGuide} 
+          className="flex items-center space-x-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors duration-150 text-sm font-medium"
+          title="LaTeX Math Guide"
+        >
+          <span>∑</span>
+          <span>LaTeX Guide</span>
+        </button>
         <button onClick={onPresent} className="flex items-center space-x-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-150 text-sm font-medium">
           <PlayIcon />
           <span>Present</span>
