@@ -18,9 +18,20 @@ export const getContent = <T>(content: Record<string, SlotContent>, key: string,
 
 export const formatText = (text: string = ''): string => {
     if (typeof text !== 'string') return '';
-    const parts = text.split(/(\$\$[\s\S]*?\$\$|\$.*?\$)/g);
+    
+    // Improved Regex to capture all standard KaTeX delimiters:
+    // $$...$$, $...$, \[...\], \(...\)
+    const mathRegex = /(\$\$[\s\S]*?\$\$|\\\[[\s\S]*?\\\]|\\\(.*?\\\)|(?<!\\)\$[^$]+(?<!\\)\$)/g;
+    
+    const parts = text.split(mathRegex);
+    
     return parts.map(part => {
-        if (part.startsWith('$')) return part;
+        // If the part looks like math, return it as is (don't format bold/emojis inside math)
+        if (part.startsWith('$') || part.startsWith('\\')) {
+             return part;
+        }
+        
+        // Otherwise apply markdown formatting
         return part
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\[emoji:\s*(\w+)\s*\]/g, (_, keyword) => EMOJI_KEYWORD_MAP[keyword.toLowerCase()] || '');

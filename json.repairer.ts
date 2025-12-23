@@ -40,8 +40,22 @@ export const repairJson = (jsonString: string): string => {
  * Safely parses JSON after attempting repairs.
  */
 export const safeParse = <T>(jsonString: string, defaultValue: T): T => {
+  // Pre-process: Fix common LaTeX escape issues where AI forgets double backslash
+  let processed = jsonString;
+  const latexCommands = ['frac', 'sum', 'int', 'alpha', 'beta', 'gamma', 'pi', 'sqrt', 'text', 'mathbf', 'cdot', 'infty', 'approx'];
+  
+  latexCommands.forEach(cmd => {
+      // Replace \cmd with \\cmd (but not if it's already \\cmd)
+      // Regex explanation: Look for \cmd that is NOT preceded by a \
+      const regex = new RegExp(`(?<!\\\\)\\\\${cmd}`, 'g');
+      processed = processed.replace(regex, `\\\\${cmd}`);
+  });
+  
+  // Also fix [ ] and ( ) used in LaTeX math but interpreted as JSON sometimes
+  // This is harder to do safely via regex without context, so we focus on commands first.
+
   try {
-    const repaired = repairJson(jsonString);
+    const repaired = repairJson(processed);
     return JSON.parse(repaired) as T;
   } catch (e) {
     console.error("JSON Repair/Parse failed. Input:", jsonString.slice(0, 100) + "...", "Error:", e);

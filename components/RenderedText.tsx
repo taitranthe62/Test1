@@ -22,6 +22,9 @@ const RenderedText: React.FC<RenderedTextProps> = ({ content, style }) => {
   const cleanContent = sanitizeHtml(content);
 
   useEffect(() => {
+    // CRITICAL FIX: Reset retry count when content changes to ensure new math is rendered
+    retryCount.current = 0;
+
     const renderMath = () => {
         if (ref.current && window.renderMathInElement && window.katex) {
             try {
@@ -32,13 +35,15 @@ const RenderedText: React.FC<RenderedTextProps> = ({ content, style }) => {
                         { left: '$', right: '$', display: false },
                         { left: '\\(', right: '\\)', display: false },
                     ],
-                    throwOnError: false
+                    throwOnError: false, // Don't crash on bad latex
+                    strict: false,       // Be lenient with warnings
+                    errorColor: '#cc0000' // Highlight errors visually
                 });
             } catch (e) {
                 console.error("KaTeX rendering error:", e);
             }
-        } else if (retryCount.current < 20) {
-            // Thử lại sau 100ms nếu KaTeX chưa sẵn sàng (tối đa 2 giây)
+        } else if (retryCount.current < 50) {
+            // Retry up to 50 times (5 seconds) to allow KaTeX from CDN to load on slow connections
             retryCount.current++;
             setTimeout(renderMath, 100);
         }

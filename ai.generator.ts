@@ -96,7 +96,6 @@ export async function generatePresentationFromTopic(
     const systemInstruction = `Bạn là chuyên gia thiết kế slide chuyên nghiệp.
 Nhiệm vụ: Tạo bài thuyết trình về: "${topic}".
 Văn bản: Tiếng Việt. Prompt ảnh: Tiếng Anh.
-Toán học: Dùng LaTeX ($...$ hoặc $$...$$).
 
 ## 1. CẤU TRÚC LAYOUT (CHỈ ĐƯỢC DÙNG CÁC LOẠI SAU)
 ${layoutInstructions}
@@ -109,6 +108,10 @@ ${layoutInstructions}
 - **Quote**: Dùng layout 'quote'. Nội dung vào 'text', tác giả vào 'caption'.
 - **Statistic**: Dùng layout 'statistic'. Số liệu vào 'text', mô tả vào 'subtitle'.
 - **Timeline**: Dùng layout 'timeline'. Các mốc thời gian vào 'points'.
+- **Toán học**: Dùng LaTeX trong $...$ (inline) hoặc $$...$$ (block).
+  QUAN TRỌNG: Trong chuỗi JSON, bạn PHẢI escape dấu gạch chéo ngược (backslash).
+  VD ĐÚNG: "Công thức $\\\\frac{a}{b}$" (sẽ thành \\frac khi parse)
+  VD SAI: "Công thức $\\frac{a}{b}$" (sẽ lỗi JSON)
 
 ## 3. DỮ LIỆU NGUỒN
 ${truncatedContent}
