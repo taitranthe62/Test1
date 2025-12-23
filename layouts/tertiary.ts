@@ -1,6 +1,7 @@
 
 import { SlideTemplate, LayoutPriority, SlideElement } from '../types';
 import { createTextElement, createTableElement, createChartElement, getContent, arrayToPoints } from './helpers';
+import { TEXT_SIZE, LAYOUT } from './layout.styles';
 
 export const TERTIARY_LAYOUTS: SlideTemplate[] = [
   {
@@ -14,8 +15,8 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
       { type: 'TABLE', rows: 3, columns: 3, cellData: [], style: { position: 'absolute', left: '8%', top: '25%', width: '84%', height: '65%' } },
     ],
     render: (content, theme, background, imageCache, slideKey) => [
-        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '34px', fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
-        createTableElement(`${slideKey}-table`, 'table', getContent(content, 'table', { type: 'table', headers: [], rows: [] }), { position: 'absolute', left: '8%', top: '25%', width: '84%', height: '65%' }),
+        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+        createTableElement(`${slideKey}-table`, 'table', getContent(content, 'table', { type: 'table', headers: [], rows: [] }), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.CONTENT_TOP, width: LAYOUT.CONTENT_WIDTH, height: '65%' }),
     ].filter(Boolean) as SlideElement[],
   },
   {
@@ -29,8 +30,8 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
       { type: 'CHART', chartType: 'BAR', data: { labels:[], datasets:[] }, style: { position: 'absolute', left: '8%', top: '25%', width: '84%', height: '65%' } },
     ],
     render: (content, theme, background, imageCache, slideKey) => [
-        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '34px', fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
-        createChartElement(`${slideKey}-chart`, 'chart', getContent(content, 'chart', { type: 'chart', chartType: 'BAR', labels: [], datasets: [] }), { position: 'absolute', left: '8%', top: '25%', width: '84%', height: '65%' }, background),
+        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+        createChartElement(`${slideKey}-chart`, 'chart', getContent(content, 'chart', { type: 'chart', chartType: 'BAR', labels: [], datasets: [] }), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.CONTENT_TOP, width: LAYOUT.CONTENT_WIDTH, height: '65%' }, background),
     ].filter(Boolean) as SlideElement[],
   },
   {
@@ -44,11 +45,11 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
           { type: 'TEXT', content: 'Tăng trưởng', style: { position: 'absolute', left: '30%', top: '55%', width: '40%', fontSize: '24px', textAlign: 'center' } }
       ],
       render: (content, theme, background, imageCache, slideKey) => [
-          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '34px', fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
           // Big circular background
           { id: `${slideKey}-circle`, type: 'SHAPE', shape: 'ELLIPSE', style: { position: 'absolute', left: '35%', top: '25%', width: '30%', height: '53%', backgroundColor: background.accentColor || theme.accentColor, opacity: 0.1 } },
-          createTextElement(`${slideKey}-stat`, 'text', getContent(content, 'text', '0'), { position: 'absolute', left: '10%', top: '32%', width: '80%', fontSize: '100px', fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: background.accentColor || theme.accentColor }),
-          createTextElement(`${slideKey}-desc`, 'subtitle', getContent(content, 'subtitle', ''), { position: 'absolute', left: '20%', top: '55%', width: '60%', fontSize: '24px', textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor })
+          createTextElement(`${slideKey}-stat`, 'text', getContent(content, 'text', '0'), { position: 'absolute', left: '10%', top: '32%', width: '80%', fontSize: TEXT_SIZE.HUGE, fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: background.accentColor || theme.accentColor }),
+          createTextElement(`${slideKey}-desc`, 'subtitle', getContent(content, 'subtitle', ''), { position: 'absolute', left: '20%', top: '55%', width: '60%', fontSize: TEXT_SIZE.SUBTITLE, textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor })
       ].filter(Boolean) as SlideElement[]
   },
   {
@@ -69,7 +70,7 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
           const count = Math.min(items.length, 4);
           const elements: SlideElement[] = [];
           
-          elements.push(createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '34px', fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor })!);
+          elements.push(createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor })!);
           
           // Timeline Line
           elements.push({ id: `${slideKey}-line`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '10%', top: '50%', width: '80%', height: '4px', backgroundColor: '#cbd5e1', borderRadius: '2px' } });
@@ -81,7 +82,7 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
                   // Dot
                   elements.push({ id: `${slideKey}-dot-${i}`, type: 'SHAPE', shape: 'ELLIPSE', style: { position: 'absolute', left: `${left}%`, top: '49%', width: '16px', height: '16px', backgroundColor: background.accentColor || theme.accentColor, transform: 'translateX(-50%)' } });
                   // Text
-                  elements.push(createTextElement(`${slideKey}-text-${i}`, `point-${i}`, item, { position: 'absolute', left: `${left - 10}%`, top: i % 2 === 0 ? '35%' : '55%', width: '20%', fontSize: '16px', textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor })!);
+                  elements.push(createTextElement(`${slideKey}-text-${i}`, `point-${i}`, item, { position: 'absolute', left: `${left - 10}%`, top: i % 2 === 0 ? '35%' : '55%', width: '20%', fontSize: TEXT_SIZE.BODY_SMALL, textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor })!);
               });
           }
           return elements.filter(Boolean);
@@ -98,15 +99,15 @@ export const TERTIARY_LAYOUTS: SlideTemplate[] = [
           { type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '53%', top: '20%', width: '42%', height: '70%', backgroundColor: '#e2e8f0' } },
       ],
       render: (content, theme, background, imageCache, slideKey) => [
-          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '34px', fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
           
           // Left Box
           { id: `${slideKey}-bg-left`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '5%', top: '20%', width: '44%', height: '70%', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '8px' } },
-          createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(getContent(content, 'left_text', [])), { position: 'absolute', left: '7%', top: '23%', width: '40%', fontSize: '20px', fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+          createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(getContent(content, 'left_text', [])), { position: 'absolute', left: '7%', top: '23%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
           
           // Right Box
           { id: `${slideKey}-bg-right`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '51%', top: '20%', width: '44%', height: '70%', backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: '8px' } },
-          createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(getContent(content, 'right_text', [])), { position: 'absolute', left: '53%', top: '23%', width: '40%', fontSize: '20px', fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+          createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(getContent(content, 'right_text', [])), { position: 'absolute', left: '53%', top: '23%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
       ].filter(Boolean) as SlideElement[]
   }
 ];

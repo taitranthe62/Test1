@@ -77,6 +77,7 @@ export function serializeSlideToSpec(slide: Slide): AISlideSpec {
  */
 export function serializePresentationToSpec(slides: Slide[]): AIPresentationSpec {
     return {
+        version: '1.0',
         slides: slides.map(serializeSlideToSpec)
     };
 }

@@ -3,8 +3,7 @@ import React, { useEffect, useRef, useContext, useState } from 'react';
 import { ChartElement, BackgroundDefinition } from '../types';
 import { PresentationContext } from '../presentationContext';
 import { hexToRgba } from '../utils';
-
-declare const Chart: any;
+import Chart from 'chart.js/auto';
 
 interface ChartRendererProps {
   element: ChartElement;
@@ -22,12 +21,6 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ element, background: prop
   useEffect(() => {
     if (!canvasRef.current) return;
     
-    // Safety check for Chart.js
-    if (typeof Chart === 'undefined') {
-        setError("Chart.js library is missing.");
-        return;
-    }
-
     const ctx = canvasRef.current.getContext('2d');
     if (!ctx) return;
 
@@ -79,7 +72,7 @@ const ChartRenderer: React.FC<ChartRendererProps> = ({ element, background: prop
 
     try {
         chartInstanceRef.current = new Chart(ctx, {
-        type: chartType.toLowerCase(),
+        type: chartType.toLowerCase() as any,
         data: formattedData,
         options: {
             responsive: true,

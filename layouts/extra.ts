@@ -37,6 +37,22 @@ export const EXTRA_LAYOUTS: SlideTemplate[] = [
       ].filter(Boolean) as SlideElement[]
   },
   {
+      name: 'Ảnh Phải (Content Right Image)',
+      type: 'content_right_image',
+      slots: ['title', 'text', 'image'],
+      priority: LayoutPriority.SECONDARY,
+      usageGuideline: 'Văn bản bên trái, ảnh bên phải.',
+      previewElements: [
+          { type: 'TEXT', content: 'Nội dung', style: { position: 'absolute', left: '5%', top: '25%', width: '45%' } },
+          { type: 'IMAGE', src: '', style: { position: 'absolute', left: '55%', top: '25%', width: '40%', height: '60%' } }
+      ],
+      render: (content, theme, background, imageCache, slideKey) => [
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+          createTextElement(`${slideKey}-text`, 'text', arrayToPoints(getContent(content, 'text', [])), { position: 'absolute', left: '5%', top: '25%', width: '45%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+          createImageElement(`${slideKey}-image`, 'image', getContent(content, 'image', { type: 'image', prompt: 'visual' }), imageCache, `slide-${slideKey}-image`, { position: 'absolute', left: '55%', top: '25%', width: '40%', height: '60%', objectFit: 'cover', borderRadius: '8px' }),
+      ].filter(Boolean) as SlideElement[]
+  },
+  {
       name: 'Giới thiệu Nhóm (Team Showcase)',
       type: 'team_showcase',
       slots: ['title', 'points'], // points array: "Name - Role"
@@ -62,8 +78,7 @@ export const EXTRA_LAYOUTS: SlideTemplate[] = [
                   const [name, role] = memberStr.split(/[-–:]/).map((s: string) => s.trim());
                   
                   // Avatar placeholder
-                  elements.push({ id: `${slideKey}-avatar-${i}`, type: 'SHAPE', shape: 'ELLIPSE', style: { position: 'absolute', left: `${left + widthPerItem/2 - 6}%`, top: '35%', width: '12%', paddingTop: '12%', height: '0', backgroundColor: '#e2e8f0' } }); // Hack for aspect ratio in CSS? No, using fixed % width
-                  // Better circle:
+                  elements.push({ id: `${slideKey}-avatar-${i}`, type: 'SHAPE', shape: 'ELLIPSE', style: { position: 'absolute', left: `${left + widthPerItem/2 - 6}%`, top: '35%', width: '12%', paddingTop: '12%', height: '0', backgroundColor: '#e2e8f0' } }); 
                   elements.push({ id: `${slideKey}-avatar-real-${i}`, type: 'SHAPE', shape: 'ELLIPSE', style: { position: 'absolute', left: `${left + widthPerItem/2 - 6}%`, top: '35%', width: '130px', height: '130px', backgroundColor: '#cbd5e1', transform: 'translateX(-50%)' } });
                   
                   // Initial
@@ -74,7 +89,7 @@ export const EXTRA_LAYOUTS: SlideTemplate[] = [
                   
                   // Role
                   if (role) {
-                      elements.push(createTextElement(`${slideKey}-role-${i}`, `role-${i}`, role, { position: 'absolute', left: `${left}%`, top: '63%', width: `${widthPerItem}%`, fontSize: '16px', textAlign: 'center', fontFamily: theme.bodyFont, color: theme.accentColor })!);
+                      elements.push(createTextElement(`${slideKey}-role-${i}`, `role-${i}`, role, { position: 'absolute', left: `${left}%`, top: '63%', width: `${widthPerItem}%`, fontSize: TEXT_SIZE.CAPTION, textAlign: 'center', fontFamily: theme.bodyFont, color: theme.accentColor })!);
                   }
               });
           }
@@ -111,7 +126,7 @@ export const EXTRA_LAYOUTS: SlideTemplate[] = [
           // Render 3 columns
           [5, 36, 67].forEach((leftPos, i) => {
               if (cols[i].length > 0) {
-                  elements.push(createTextElement(`${slideKey}-col-${i}`, `col-${i}`, arrayToPoints(cols[i]), { position: 'absolute', left: `${leftPos}%`, top: '25%', width: '28%', fontSize: '18px', fontFamily: theme.bodyFont, color: background.secondaryTextColor })!);
+                  elements.push(createTextElement(`${slideKey}-col-${i}`, `col-${i}`, arrayToPoints(cols[i]), { position: 'absolute', left: `${leftPos}%`, top: '25%', width: '28%', fontSize: TEXT_SIZE.BODY_SMALL, fontFamily: theme.bodyFont, color: background.secondaryTextColor })!);
               }
           });
 
@@ -151,6 +166,34 @@ export const EXTRA_LAYOUTS: SlideTemplate[] = [
           createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(getContent(content, 'left_text', [])), { position: 'absolute', left: '8%', top: '25%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
           createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(getContent(content, 'right_text', [])), { position: 'absolute', left: '52%', top: '25%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
       ].filter(Boolean) as SlideElement[]
+  },
+  {
+      name: 'Hai Cột Có Tiêu Đề Phụ',
+      type: 'content_two_column_subheaded',
+      slots: ['title', 'left_text', 'right_text'], // left_text & right_text first line is subheader
+      priority: LayoutPriority.SECONDARY,
+      usageGuideline: 'Hai cột nội dung, mỗi cột có tiêu đề phụ.',
+      previewElements: [
+          { type: 'TEXT', content: 'Tiêu đề', style: { position: 'absolute', left: '8%', top: '10%', fontSize: '32px' } },
+          { type: 'TEXT', content: 'Phụ đề 1', style: { position: 'absolute', left: '8%', top: '25%', fontSize: '20px', fontWeight: 'bold' } },
+          { type: 'TEXT', content: 'Phụ đề 2', style: { position: 'absolute', left: '52%', top: '25%', fontSize: '20px', fontWeight: 'bold' } }
+      ],
+      render: (content, theme, background, imageCache, slideKey) => {
+          const leftLines = (getContent(content, 'left_text', []) as string[]).slice();
+          const rightLines = (getContent(content, 'right_text', []) as string[]).slice();
+          const leftHead = leftLines.shift() || 'Subtitle 1';
+          const rightHead = rightLines.shift() || 'Subtitle 2';
+
+          return [
+              createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+              
+              createTextElement(`${slideKey}-left-head`, 'left_head', leftHead, { position: 'absolute', left: '8%', top: '25%', width: '40%', fontSize: TEXT_SIZE.SUBTITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: theme.accentColor }),
+              createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(leftLines), { position: 'absolute', left: '8%', top: '32%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+              
+              createTextElement(`${slideKey}-right-head`, 'right_head', rightHead, { position: 'absolute', left: '52%', top: '25%', width: '40%', fontSize: TEXT_SIZE.SUBTITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: theme.accentColor }),
+              createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(rightLines), { position: 'absolute', left: '52%', top: '32%', width: '40%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+          ].filter(Boolean) as SlideElement[];
+      }
   },
   {
       name: 'Quy trình (Process Flow)',

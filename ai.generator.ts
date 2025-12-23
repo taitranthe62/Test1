@@ -117,7 +117,7 @@ ${truncatedContent}
             if (attempt > 0) onProgress(`Máy chủ bận, đang thử lại lần ${attempt + 1}...`);
             
             const response = await callGemini(ai, topic, systemInstruction, minSlides, maxSlides);
-            const spec = safeParse<AIPresentationSpec>(response.text, { slides: [] });
+            const spec = safeParse<AIPresentationSpec>(response.text, { version: '1.0', slides: [] });
             
             if (spec.slides && spec.slides.length > 0) {
                 // Double check layout validity

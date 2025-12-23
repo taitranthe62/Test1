@@ -20,12 +20,12 @@ export const MATH_LAYOUTS: SlideTemplate[] = [
       
       // Theorem Box
       { id: `${slideKey}-theorem-bg`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '10%', top: '22%', width: '80%', height: '25%', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', borderLeft: `6px solid ${theme.accentColor}` } },
-      createTextElement(`${slideKey}-theorem-label`, 'theorem_label', '<strong>ĐỊNH LÝ</strong>', { position: 'absolute', left: '12%', top: '24%', width: '76%', fontSize: '16px', fontWeight: 'bold', color: theme.accentColor, fontFamily: theme.bodyFont, letterSpacing: '0.1em' }),
-      createTextElement(`${slideKey}-theorem`, 'text', getContent(content, 'text', ''), { position: 'absolute', left: '12%', top: '30%', width: '76%', fontSize: '24px', fontStyle: 'italic', fontFamily: theme.bodyFont, color: background.primaryTextColor }),
+      createTextElement(`${slideKey}-theorem-label`, 'theorem_label', '<strong>ĐỊNH LÝ</strong>', { position: 'absolute', left: '12%', top: '24%', width: '76%', fontSize: TEXT_SIZE.CAPTION, fontWeight: 'bold', color: theme.accentColor, fontFamily: theme.bodyFont, letterSpacing: '0.1em' }),
+      createTextElement(`${slideKey}-theorem`, 'text', getContent(content, 'text', ''), { position: 'absolute', left: '12%', top: '30%', width: '76%', fontSize: TEXT_SIZE.SUBTITLE, fontStyle: 'italic', fontFamily: theme.bodyFont, color: background.primaryTextColor }),
 
       // Proof
-      createTextElement(`${slideKey}-proof-label`, 'proof_label', '<em>Chứng minh:</em>', { position: 'absolute', left: '10%', top: '52%', width: '80%', fontSize: '20px', fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
-      createTextElement(`${slideKey}-proof`, 'points', arrayToPoints(getContent(content, 'points', [])), { position: 'absolute', left: '10%', top: '58%', width: '80%', fontSize: '20px', fontFamily: theme.bodyFont, color: background.primaryTextColor, lineHeight: '1.5' }),
+      createTextElement(`${slideKey}-proof-label`, 'proof_label', '<em>Chứng minh:</em>', { position: 'absolute', left: '10%', top: '52%', width: '80%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor }),
+      createTextElement(`${slideKey}-proof`, 'points', arrayToPoints(getContent(content, 'points', [])), { position: 'absolute', left: '10%', top: '58%', width: '80%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.primaryTextColor, lineHeight: '1.5' }),
     ].filter(Boolean) as SlideElement[],
   },
   {
@@ -46,10 +46,30 @@ export const MATH_LAYOUTS: SlideTemplate[] = [
         
         // Label centered on top border
         { id: `${slideKey}-def-label-bg`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '40%', top: '28%', width: '20%', height: '40px', backgroundColor: background.color } },
-        createTextElement(`${slideKey}-def-label`, 'label', 'ĐỊNH NGHĨA', { position: 'absolute', left: '40%', top: '28%', width: '20%', height: '40px', fontSize: '20px', fontWeight: 'bold', textAlign: 'center', color: theme.accentColor, fontFamily: theme.bodyFont, display: 'flex', alignItems: 'center', justifyContent: 'center' }),
+        createTextElement(`${slideKey}-def-label`, 'label', 'ĐỊNH NGHĨA', { position: 'absolute', left: '40%', top: '28%', width: '20%', height: '40px', fontSize: TEXT_SIZE.BODY, fontWeight: 'bold', textAlign: 'center', color: theme.accentColor, fontFamily: theme.bodyFont, display: 'flex', alignItems: 'center', justifyContent: 'center' }),
 
         createTextElement(`${slideKey}-text`, 'text', getContent(content, 'text', ''), { position: 'absolute', left: '20%', top: '38%', width: '60%', fontSize: '28px', textAlign: 'center', fontFamily: theme.bodyFont, color: background.primaryTextColor, lineHeight: '1.6' }),
     ].filter(Boolean) as SlideElement[],
+  },
+  {
+      name: 'Công thức Hai Cột (Math Eq Columns)',
+      type: 'math_equation_two_column',
+      slots: ['title', 'left_text', 'right_text'],
+      priority: LayoutPriority.TERTIARY,
+      usageGuideline: 'Hai cột công thức hoặc so sánh toán học.',
+      previewElements: [
+          { type: 'TEXT', content: '$$ x^2 $$', style: { position: 'absolute', left: '10%', top: '30%' } },
+          { type: 'TEXT', content: '$$ y^2 $$', style: { position: 'absolute', left: '60%', top: '30%' } }
+      ],
+      render: (content, theme, background, imageCache, slideKey) => [
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: 'bold', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+          
+          createTextElement(`${slideKey}-left`, 'left_text', getContent(content, 'left_text', ''), { position: 'absolute', left: '8%', top: '25%', width: '40%', fontSize: TEXT_SIZE.HEADING, textAlign: 'center', fontFamily: theme.bodyFont, color: background.primaryTextColor }),
+          
+          { id: `${slideKey}-divider`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '50%', top: '25%', width: '2px', height: '50%', backgroundColor: '#e2e8f0' } },
+
+          createTextElement(`${slideKey}-right`, 'right_text', getContent(content, 'right_text', ''), { position: 'absolute', left: '52%', top: '25%', width: '40%', fontSize: TEXT_SIZE.HEADING, textAlign: 'center', fontFamily: theme.bodyFont, color: background.primaryTextColor }),
+      ].filter(Boolean) as SlideElement[]
   },
   {
       name: 'Giải thích Đồ thị (Graph Explanation)',

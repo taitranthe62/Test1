@@ -1,6 +1,7 @@
 
 import { SlideTemplate, LayoutPriority, SlideElement } from '../types';
 import { createTextElement, getContent, arrayToPoints } from './helpers';
+import { TEXT_SIZE, LAYOUT } from './layout.styles';
 
 export const PRIMARY_LAYOUTS: SlideTemplate[] = [
   {
@@ -16,8 +17,8 @@ export const PRIMARY_LAYOUTS: SlideTemplate[] = [
     render: (content, theme, background, imageCache, slideKey) => [
       // Accent line above title
       { id: `${slideKey}-accent`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '46%', top: '32%', width: '8%', height: '4px', backgroundColor: background.accentColor || theme.accentColor, borderRadius: '2px' } },
-      createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', '').toUpperCase(), { position: 'absolute', left: '10%', top: '38%', width: '80%', fontSize: '56px', fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: background.primaryTextColor, letterSpacing: '0.05em' }),
-      createTextElement(`${slideKey}-subtitle`, 'subtitle', getContent(content, 'subtitle', ''), { position: 'absolute', left: '15%', top: '56%', width: '70%', fontSize: '22px', fontWeight: '500', textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor, opacity: 0.9 }),
+      createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', '').toUpperCase(), { position: 'absolute', left: LAYOUT.MARGIN_X, top: '38%', width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE_LARGE, fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: background.primaryTextColor, letterSpacing: '0.05em' }),
+      createTextElement(`${slideKey}-subtitle`, 'subtitle', getContent(content, 'subtitle', ''), { position: 'absolute', left: '15%', top: '56%', width: '70%', fontSize: TEXT_SIZE.SUBTITLE, fontWeight: '500', textAlign: 'center', fontFamily: theme.bodyFont, color: background.secondaryTextColor, opacity: 0.9 }),
     ].filter(Boolean) as SlideElement[],
   },
   {
@@ -32,7 +33,7 @@ export const PRIMARY_LAYOUTS: SlideTemplate[] = [
       ],
       render: (content, theme, background, imageCache, slideKey) => [
           { id: `${slideKey}-band`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '0', top: '35%', width: '100%', height: '30%', backgroundColor: background.accentColor || theme.accentColor } },
-          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '10%', top: '42%', width: '80%', fontSize: '48px', fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: '#ffffff' }),
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '10%', top: '42%', width: '80%', fontSize: TEXT_SIZE.TITLE, fontWeight: '800', textAlign: 'center', fontFamily: theme.titleFont, color: '#ffffff' }),
       ].filter(Boolean) as SlideElement[]
   },
   {
@@ -47,9 +48,9 @@ export const PRIMARY_LAYOUTS: SlideTemplate[] = [
     ],
     render: (content, theme, background, imageCache, slideKey) => [
         { id: `${slideKey}-side-bar`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '0', top: '0', width: '12px', height: '100%', backgroundColor: background.accentColor || theme.accentColor } },
-        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '10%', width: '84%', fontSize: '44px', fontWeight: '800', fontFamily: theme.titleFont, color: background.primaryTextColor }),
-        { id: `${slideKey}-title-line`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '8%', top: '22%', width: '60px', height: '4px', backgroundColor: background.accentColor || theme.accentColor } },
-        createTextElement(`${slideKey}-points`, 'points', arrayToPoints(getContent(content, 'points', []), '• '), { position: 'absolute', left: '8%', top: '28%', width: '80%', fontSize: '26px', fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.6' }),
+        createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: '800', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+        { id: `${slideKey}-title-line`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: LAYOUT.MARGIN_X, top: '22%', width: '60px', height: '4px', backgroundColor: background.accentColor || theme.accentColor } },
+        createTextElement(`${slideKey}-points`, 'points', arrayToPoints(getContent(content, 'points', []), '• '), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.CONTENT_TOP, width: '80%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.6' }),
     ].filter(Boolean) as SlideElement[],
   },
   {
@@ -63,11 +64,11 @@ export const PRIMARY_LAYOUTS: SlideTemplate[] = [
           { type: 'TEXT', content: 'Cột 2', style: { position: 'absolute', left: '55%', top: '25%', width: '37%' } },
       ],
       render: (content, theme, background, imageCache, slideKey) => [
-          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: '8%', top: '8%', width: '84%', fontSize: '38px', fontWeight: '800', fontFamily: theme.titleFont, color: background.primaryTextColor }),
+          createTextElement(`${slideKey}-title`, 'title', getContent(content, 'title', ''), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.TITLE_TOP, width: LAYOUT.CONTENT_WIDTH, fontSize: TEXT_SIZE.TITLE, fontWeight: '800', fontFamily: theme.titleFont, color: background.primaryTextColor }),
           // Asymmetrical layout
-          createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(getContent(content, 'left_text', [])), { position: 'absolute', left: '8%', top: '25%', width: '42%', fontSize: '22px', fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.5' }),
-          { id: `${slideKey}-divider`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '52%', top: '25%', width: '2px', height: '60%', backgroundColor: background.accentColor || theme.accentColor, opacity: 0.3 } },
-          createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(getContent(content, 'right_text', [])), { position: 'absolute', left: '56%', top: '25%', width: '36%', fontSize: '22px', fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.5' }),
+          createTextElement(`${slideKey}-left`, 'left_text', arrayToPoints(getContent(content, 'left_text', [])), { position: 'absolute', left: LAYOUT.MARGIN_X, top: LAYOUT.CONTENT_TOP, width: '42%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.5' }),
+          { id: `${slideKey}-divider`, type: 'SHAPE', shape: 'RECTANGLE', style: { position: 'absolute', left: '52%', top: LAYOUT.CONTENT_TOP, width: '2px', height: '60%', backgroundColor: background.accentColor || theme.accentColor, opacity: 0.3 } },
+          createTextElement(`${slideKey}-right`, 'right_text', arrayToPoints(getContent(content, 'right_text', [])), { position: 'absolute', left: '56%', top: LAYOUT.CONTENT_TOP, width: '36%', fontSize: TEXT_SIZE.BODY, fontFamily: theme.bodyFont, color: background.secondaryTextColor, lineHeight: '1.5' }),
       ].filter(Boolean) as SlideElement[],
   }
 ];

@@ -62,6 +62,7 @@ export interface AISlideSpec {
  * Đặc tả cho toàn bộ bài thuyết trình.
  */
 export interface AIPresentationSpec {
+  version: string;
   title?: string;
   slides: AISlideSpec[];
 }
