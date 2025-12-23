@@ -4,7 +4,9 @@ import { SLIDE_LAYOUTS, STUDY_DECK_LAYOUTS } from './templates';
 import { AIPresentationSpec, LayoutType } from './dsl.definition';
 import { safeParse } from './json.repairer';
 
-// Optimized Schema: Uses Strings for complex types (Chart/Table) to save tokens
+// Get available layout types dynamically to prevent hallucinations
+const AVAILABLE_LAYOUT_IDS = [...SLIDE_LAYOUTS, ...STUDY_DECK_LAYOUTS].map(l => l.type);
+
 const COMPACT_PRESENTATION_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -14,18 +16,20 @@ const COMPACT_PRESENTATION_SCHEMA = {
       items: {
         type: Type.OBJECT,
         properties: {
-          layout: { type: Type.STRING },
+          layout: { 
+              type: Type.STRING, 
+              enum: AVAILABLE_LAYOUT_IDS // Strict Enum Validation
+          },
           content: {
             type: Type.OBJECT,
             properties: {
               title: { type: Type.STRING },
               subtitle: { type: Type.STRING },
               text: { type: Type.STRING },
-              caption: { type: Type.STRING },
+              caption: { type: Type.STRING }, // Used for Quote Author as well
               points: { type: Type.ARRAY, items: { type: Type.STRING } },
               left_text: { type: Type.ARRAY, items: { type: Type.STRING } },
               right_text: { type: Type.ARRAY, items: { type: Type.STRING } },
-              // Compact Image: just a prompt string or object
               image: {
                 type: Type.OBJECT,
                 properties: {
@@ -34,9 +38,7 @@ const COMPACT_PRESENTATION_SCHEMA = {
                 },
                 required: ["type", "prompt"]
               },
-              // Compact Table: Markdown string
               table: { type: Type.STRING },
-              // Compact Chart: Pipe-separated string "TYPE|Label1,Label2|DS1:1,2"
               chart: { type: Type.STRING }
             }
           }
@@ -56,7 +58,7 @@ async function callGemini(ai: GoogleGenAI, topic: string, systemInstruction: str
             systemInstruction,
             responseMimeType: "application/json", 
             responseSchema: COMPACT_PRESENTATION_SCHEMA,
-            temperature: 0.7,
+            temperature: 0.3, // Lower temperature for structured data consistency
             thinkingConfig: { thinkingBudget: 0 }
         }
     });
@@ -72,38 +74,34 @@ export async function generatePresentationFromTopic(
 ): Promise<AIPresentationSpec> {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const layouts = isStudyDeck ? STUDY_DECK_LAYOUTS : SLIDE_LAYOUTS;
-    const availableLayouts = layouts.map(l => l.type).join(', ');
+    
+    // Create a rich text description of available layouts
+    const layoutInstructions = layouts.map(l => `- "${l.type}": ${l.usageGuideline} (Slots: ${l.slots.join(', ')})`).join('\n');
 
-    onProgress(`Đang phân tích dữ liệu (DSL v2 Compact)...`);
+    onProgress(`Đang phân tích dữ liệu (DSL v2 Enhanced)...`);
 
-    const systemInstruction = `Bạn là chuyên gia thiết kế slide.
+    const systemInstruction = `Bạn là chuyên gia thiết kế slide chuyên nghiệp.
 Nhiệm vụ: Tạo bài thuyết trình về: "${topic}".
 Văn bản: Tiếng Việt. Prompt ảnh: Tiếng Anh.
 Toán học: Dùng LaTeX ($...$ hoặc $$...$$).
 
-## LUẬT FORMAT (COMPACT DSL)
+## 1. CẤU TRÚC LAYOUT (CHỈ ĐƯỢC DÙNG CÁC LOẠI SAU)
+${layoutInstructions}
 
-### 1. Layouts:
-${availableLayouts}
+## 2. QUY ĐỊNH DỮ LIỆU
+- **Chart**: Dùng chuỗi "LOẠI|NhãnX1,NhãnX2|DS1:1,2". LOẠI chỉ được là: BAR, LINE, PIE. 
+  VD: "BAR|Q1,Q2|Rev:100,200". Dữ liệu phải khớp số lượng nhãn.
+- **Table**: Dùng Markdown Table. VD: "| H1 | H2 |\\n| D1 | D2 |".
+- **Image**: { "type": "image", "prompt": "mô tả chi tiết bằng tiếng Anh" }.
+- **Quote**: Dùng layout 'quote'. Nội dung vào 'text', tác giả vào 'caption'.
 
-### 2. Chart Format (QUAN TRỌNG):
-Trả về chuỗi String dạng: "LOẠI|NhãnX1,NhãnX2,...|TênDataset1:Số,Số...|TênDataset2:Số,Số..."
-- LOẠI: BAR, LINE, PIE
-- Ví dụ: "BAR|Q1,Q2,Q3|Doanh thu:100,200,150|Chi phí:80,120,90"
+## 3. DỮ LIỆU NGUỒN
+${fileContent.slice(0, 6000)}
 
-### 3. Table Format:
-Trả về chuỗi String dạng Markdown Table chuẩn.
-- Ví dụ: "| Header 1 | Header 2 |\\n| Data 1 | Data 2 |"
-
-### 4. Image:
-Trả về Object: { "type": "image", "prompt": "English description" }
-
-## DỮ LIỆU NGUỒN
-${fileContent.slice(0, 5000)}
-
-## YÊU CẦU
-- Số slide: ${minSlides}-${maxSlides}
-- Trả về JSON hợp lệ khớp với Schema.`;
+## 4. YÊU CẦU
+- Số slide: ${minSlides}-${maxSlides}.
+- Đảm bảo JSON hợp lệ. Không được bịa ra layout không có trong danh sách trên.
+- Đa dạng hóa layout, tránh dùng 'content' quá nhiều.`;
 
     let attempt = 0;
     const maxAttempts = 2;
@@ -116,8 +114,15 @@ ${fileContent.slice(0, 5000)}
             const spec = safeParse<AIPresentationSpec>(response.text, { slides: [] });
             
             if (spec.slides && spec.slides.length > 0) {
-                // Filter invalid layouts
-                spec.slides = spec.slides.filter(s => layouts.some(l => l.type === s.layout));
+                // Double check layout validity
+                spec.slides = spec.slides.map(s => {
+                    if (!layouts.some(l => l.type === s.layout)) {
+                        console.warn(`Invalid layout ${s.layout}, falling back to content`);
+                        return { ...s, layout: 'content' as LayoutType };
+                    }
+                    return s;
+                });
+                
                 onProgress(`Đã soạn thảo thành công ${spec.slides.length} slide.`);
                 return spec;
             }
@@ -133,7 +138,6 @@ ${fileContent.slice(0, 5000)}
                 }
                 throw new Error("Không thể kết nối với AI sau nhiều lần thử. Hãy thử rút ngắn nội dung yêu cầu.");
             }
-            // Đợi một chút trước khi thử lại
             await new Promise(r => setTimeout(r, 2000));
         }
     }

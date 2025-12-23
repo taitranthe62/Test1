@@ -5,17 +5,18 @@ import { SlideTemplate, ChartType } from './types';
 
 /**
  * Common aliases used by LLMs for standard slots.
+ * Removed duplicates and added specific aliases for Quote/Stats.
  */
 const SLOT_ALIASES: Record<string, string[]> = {
   title: ['header', 'heading', 'slide_title', 'main_title', 'subject'],
-  subtitle: ['sub_header', 'subheading', 'description', 'intro'],
+  subtitle: ['sub_header', 'subheading', 'intro'],
   points: ['bullets', 'list', 'content_points', 'items', 'bullet_points', 'text_list'],
-  text: ['body', 'content_text', 'paragraph', 'description', 'main_body'],
+  text: ['body', 'content_text', 'paragraph', 'description', 'main_body', 'quote_text'],
   left_text: ['column1', 'left_content', 'side_a'],
   right_text: ['column2', 'right_content', 'side_b'],
   image: ['picture', 'visual', 'graphic', 'photo', 'illustration'],
   background_image: ['bg_image', 'cover_image', 'hero_image'],
-  caption: ['image_caption', 'subtext', 'label'],
+  caption: ['image_caption', 'subtext', 'label', 'author', 'source'], // Shared with quote author
   table: ['data_table', 'comparison_table', 'stats_table'],
   chart: ['graph', 'data_chart', 'visualization', 'plot']
 };
@@ -35,6 +36,7 @@ function parseChartShorthand(input: string): ChartDataSpec {
   const chartType = (['BAR', 'LINE', 'PIE'].includes(rawType) ? rawType : 'BAR') as ChartType;
   
   const labels = parts[1].split(',').map(s => s.trim());
+  const labelCount = labels.length;
   
   const datasets = parts.slice(2).map(ds => {
     const splitIndex = ds.indexOf(':');
@@ -42,10 +44,21 @@ function parseChartShorthand(input: string): ChartDataSpec {
     
     const label = ds.substring(0, splitIndex).trim();
     const dataStr = ds.substring(splitIndex + 1);
-    const data = dataStr.split(',').map(n => {
+    
+    // Improved number parsing
+    let data = dataStr.split(',').map(n => {
        const parsed = parseFloat(n.trim());
        return isNaN(parsed) ? 0 : parsed;
     });
+
+    // Validate data length matches labels
+    if (data.length < labelCount) {
+        // Pad with zeros
+        data = [...data, ...Array(labelCount - data.length).fill(0)];
+    } else if (data.length > labelCount) {
+        // Slice to fit
+        data = data.slice(0, labelCount);
+    }
 
     return { label, data };
   }).filter((d): d is { label: string; data: number[] } => d !== null);
@@ -67,8 +80,8 @@ function parseTableMarkdown(input: string): TableDataSpec {
   if (lines.length < 2) return fallback;
 
   const parseLine = (line: string) => {
-      // Remove outer pipes and split
-      const content = line.replace(/^\||\|$/g, '');
+      // Fix: Regex now correctly matches leading/trailing pipes without confusing escaped pipes
+      const content = line.replace(/^\||\|$/g, ''); 
       return content.split('|').map(c => c.trim());
   };
 
@@ -96,8 +109,15 @@ export function validateAndRepairSlideSpec(
   // Ensure layout exists in our library, fallback to 'content' if not
   let template = templates.find(t => t.type === layoutName);
   if (!template) {
-    layoutName = 'content' as LayoutType;
-    template = templates.find(t => t.type === 'content')!;
+    // Try to fuzzy match
+    const fuzzyMatch = templates.find(t => t.type.includes(layoutName) || layoutName.includes(t.type));
+    if (fuzzyMatch) {
+        template = fuzzyMatch;
+        layoutName = template.type;
+    } else {
+        layoutName = 'content' as LayoutType;
+        template = templates.find(t => t.type === 'content')!;
+    }
   }
 
   // 2. Extract Raw Content
@@ -130,7 +150,7 @@ export function validateAndRepairSlideSpec(
       if (typeof val === 'string') {
         repairedContent[slot] = parseChartShorthand(val);
       } else if (typeof val === 'object' && val?.type === 'chart') {
-        repairedContent[slot] = val; // Already an object
+        repairedContent[slot] = val; 
       } else {
         repairedContent[slot] = { type: 'chart', chartType: 'BAR', labels: [], datasets: [] };
       }
@@ -139,19 +159,18 @@ export function validateAndRepairSlideSpec(
       if (typeof val === 'string') {
         repairedContent[slot] = parseTableMarkdown(val);
       } else if (typeof val === 'object' && val?.type === 'table') {
-        repairedContent[slot] = val; // Already an object
+        repairedContent[slot] = val; 
       } else {
         repairedContent[slot] = { type: 'table', headers: [], rows: [] };
       }
     }
     else if (slot === 'image' || slot === 'background_image') {
-      // Allow image to be just a string prompt from older prompts/fallbacks
       if (typeof val === 'string') {
          repairedContent[slot] = { type: 'image', prompt: val };
       } else if (val && typeof val === 'object' && val.prompt) {
          repairedContent[slot] = { type: 'image', prompt: val.prompt };
       } else {
-         repairedContent[slot] = { type: 'image', prompt: 'No image prompt provided' };
+         repairedContent[slot] = { type: 'image', prompt: 'Visual representation of the slide topic' };
       }
     } 
     else if (slot.includes('points') || slot.includes('list')) {

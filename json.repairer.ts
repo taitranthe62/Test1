@@ -1,3 +1,4 @@
+
 /**
  * A utility to repair common issues in JSON strings returned by LLMs.
  * Handles markdown blocks, trailing commas, and basic unclosed structures.
@@ -10,8 +11,9 @@ export const repairJson = (jsonString: string): string => {
     cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/i, '').trim();
   }
 
-  // 2. Remove comments (// or /* */) which AI sometimes includes
-  cleaned = cleaned.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1');
+  // 2. Remove comments (// or /* */) but PROTECT URLs (http://)
+  // The regex (?<!:) ensures we don't match // inside a URL protocol
+  cleaned = cleaned.replace(/\/\*[\s\S]*?\*\/|(?<!:)\/\/.*$/gm, '');
 
   // 3. Fix common trailing comma issues in arrays or objects
   // This regex looks for a comma followed by closing brackets/braces
@@ -23,11 +25,12 @@ export const repairJson = (jsonString: string): string => {
   const openBrackets = (cleaned.match(/\[/g) || []).length;
   const closeBrackets = (cleaned.match(/\]/g) || []).length;
 
-  if (openBraces > closeBraces) {
-    cleaned += '}'.repeat(openBraces - closeBraces);
-  }
+  // Close arrays first, then objects (common JSON structure)
   if (openBrackets > closeBrackets) {
     cleaned += ']'.repeat(openBrackets - closeBrackets);
+  }
+  if (openBraces > closeBraces) {
+    cleaned += '}'.repeat(openBraces - closeBraces);
   }
 
   return cleaned;
@@ -41,7 +44,7 @@ export const safeParse = <T>(jsonString: string, defaultValue: T): T => {
     const repaired = repairJson(jsonString);
     return JSON.parse(repaired) as T;
   } catch (e) {
-    console.error("JSON Repair/Parse failed:", e);
+    console.error("JSON Repair/Parse failed. Input:", jsonString.slice(0, 100) + "...", "Error:", e);
     return defaultValue;
   }
 };

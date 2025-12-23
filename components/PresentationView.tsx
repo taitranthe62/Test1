@@ -1,5 +1,4 @@
 
-
 import React, { useState, useEffect } from 'react';
 import { Slide, IconElement, ShapeElement, TableElement, ChartElement } from '../types';
 import { XIcon } from './icons/XIcon';
@@ -50,7 +49,7 @@ const PresentationView: React.FC<PresentationViewProps> = ({ slides, onExit }) =
         <XIcon size={32} />
       </button>
 
-      <div className="w-full h-full relative" style={{ aspectRatio: '16/9', maxWidth: '100vw', maxHeight: '100vh' }}>
+      <div className="w-full h-full relative shadow-2xl overflow-hidden" style={{ aspectRatio: '16/9', maxWidth: '100vw', maxHeight: '100vh' }}>
         <SlideBackground background={currentSlide.background} />
         {currentSlide.elements.map(element => (
           <div key={element.id} style={element.style}>
@@ -61,41 +60,45 @@ const PresentationView: React.FC<PresentationViewProps> = ({ slides, onExit }) =
                                   content={element.content}
                                   style={{
                                     width: '100%', height: '100%',
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     fontFamily: (element.style as any).fontFamily,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     fontSize: (element.style as any).fontSize,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     fontWeight: (element.style as any).fontWeight,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     fontStyle: (element.style as any).fontStyle,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     textDecoration: (element.style as any).textDecoration,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     textAlign: (element.style as any).textAlign as any,
-                                    // Fix: Cast element.style to any to access CSS properties that TypeScript cannot find.
                                     color: (element.style as any).color,
                                     whiteSpace: 'pre-wrap',
                                     overflowWrap: 'break-word',
                                   }}
                                 />;
                     case 'IMAGE':
-                        // Fix: Cast element.style to any to access objectFit property.
                         return <img src={element.src} alt="" className="w-full h-full" style={{ objectFit: (element.style as any).objectFit || 'cover' }} />;
                     case 'SHAPE':
-                        // Fix: Cast element.style to any to access borderRadius property.
                         return <div className="w-full h-full" style={{ borderRadius: (element as ShapeElement).shape === 'ELLIPSE' ? '50%' : (element.style as any).borderRadius }} />;
                     case 'ICON':
                         return <IconComponent iconName={(element as IconElement).iconName} className="w-full h-full" />;
                     case 'TABLE':
                         const tableEl = element as TableElement;
+                        // Use accent color for header if available, else standard gray
+                        const headerBg = currentSlide.background.accentColor || '#3b82f6';
                         return (
-                            <table className="w-full h-full border-collapse table-fixed" style={{fontSize: '16px'}}>
+                            <table className="w-full h-full border-collapse table-fixed shadow-md bg-white/50 backdrop-blur-sm" style={{fontSize: '18px'}}>
                                 <tbody>
                                     {tableEl.cellData.map((row, rowIndex) => (
-                                        <tr key={rowIndex}>
+                                        <tr key={rowIndex} className={rowIndex === 0 ? "" : "even:bg-black/5"}>
                                             {row.map((cell) => (
-                                                <td key={cell.id} className="border border-gray-500 p-2" style={cell.style} dangerouslySetInnerHTML={{ __html: cell.content }}>
+                                                <td 
+                                                    key={cell.id} 
+                                                    className="border border-gray-300 p-3 align-middle" 
+                                                    style={{
+                                                        ...cell.style,
+                                                        backgroundColor: rowIndex === 0 ? headerBg : undefined,
+                                                        color: rowIndex === 0 ? '#fff' : 'inherit',
+                                                        fontWeight: rowIndex === 0 ? 'bold' : 'normal',
+                                                        borderColor: rowIndex === 0 ? headerBg : '#e2e8f0'
+                                                    }} 
+                                                    dangerouslySetInnerHTML={{ __html: cell.content }}
+                                                >
                                                 </td>
                                             ))}
                                         </tr>
@@ -113,7 +116,7 @@ const PresentationView: React.FC<PresentationViewProps> = ({ slides, onExit }) =
         ))}
       </div>
       
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-2 rounded-full">
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black bg-opacity-50 px-4 py-2 rounded-full text-sm font-medium">
         {currentSlideIndex + 1} / {slides.length}
       </div>
     </div>
