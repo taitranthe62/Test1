@@ -8,7 +8,12 @@ import { EMOJI_KEYWORD_MAP } from '../constants';
 export const generateId = (prefix: string) => `${prefix}-${uuidv4()}`;
 
 export const getContent = <T>(content: Record<string, SlotContent>, key: string, defaultValue: T): T => {
-    return (content[key] as T) || defaultValue;
+    const value = content[key] as T;
+    // Debug logging for development
+    if (value === undefined && process.env.NODE_ENV === 'development') {
+        console.warn(`[Layout] Missing slot "${key}" in content. Available keys:`, Object.keys(content));
+    }
+    return value || defaultValue;
 };
 
 export const formatText = (text: string = ''): string => {
@@ -37,6 +42,7 @@ export const arrayToPoints = (arr: any, prefix = '• '): string => {
 export const createTextElement = (id: string, slot: string, content: any, style: React.CSSProperties): TextElement | null => {
     const text = typeof content === 'string' ? content : '';
     const formattedContent = formatText(text);
+    // Strict check: if formatted content is empty, return null so it's filtered out
     return formattedContent ? { id, slot, type: 'TEXT', content: formattedContent, style } : null;
 };
 
@@ -48,6 +54,7 @@ export const createImageElement = (id: string, slot: string, content: any, image
         return { id, slot, type: 'IMAGE', src: imageUrl, style, prompt };
     }
     
+    // Fallback placeholder if image generation failed or hasn't run
     return {
         id, slot, type: 'TEXT',
         content: `<div style="opacity: 0.15; font-size: 80px; margin-bottom: 20px;">🖼️</div><div style="font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8;">Visual Element</div><div style="font-style: italic; font-size: 0.8em; margin-top: 10px;">"${prompt}"</div>`,

@@ -4,6 +4,7 @@ import { SLIDE_LAYOUTS, STUDY_DECK_LAYOUTS } from './templates';
 import { AIPresentationSpec, LayoutType } from './dsl.definition';
 import { safeParse } from './json.repairer';
 import { smartTruncate } from './utils';
+import { validateAndRepairSlideSpec } from './ai.parser';
 
 // Get available layout types dynamically to prevent hallucinations
 const AVAILABLE_LAYOUT_IDS = [...SLIDE_LAYOUTS, ...STUDY_DECK_LAYOUTS].map(l => l.type);
@@ -51,7 +52,8 @@ const COMPACT_PRESENTATION_SCHEMA = {
               },
               table: { type: Type.STRING },
               chart: { type: Type.STRING }
-            }
+            },
+            required: ["title"] // CRITICAL: Enforce at least title to prevent empty content objects
           }
         },
         required: ["layout", "content"]
@@ -127,12 +129,17 @@ ${truncatedContent}
             const spec = safeParse<AIPresentationSpec>(response.text, { version: '1.0', slides: [] });
             
             if (spec.slides && spec.slides.length > 0) {
-                // Double check layout validity
+                // CRITICAL FIX: Validate and repair slots immediately after parsing
                 spec.slides = spec.slides.map(s => {
-                    if (!layouts.some(l => l.type === s.layout)) {
-                        return { ...s, layout: 'content' as LayoutType };
+                    // 1. Normalize aliases (header->title, picture->image, etc.)
+                    const repaired = validateAndRepairSlideSpec(s, s.layout as string, layouts);
+                    
+                    // 2. Validate Layout existence
+                    if (!layouts.some(l => l.type === repaired.layout)) {
+                        console.warn(`Invalid layout ${repaired.layout}, falling back to content`);
+                        return { ...repaired, layout: 'content' as LayoutType };
                     }
-                    return s;
+                    return repaired;
                 });
                 
                 onProgress(`Thành công! Đang tạo ${spec.slides.length} slide...`);

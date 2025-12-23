@@ -83,6 +83,7 @@ export const generateSlidesFromSpecification = async (
     
     const layouts = isStudyDeck ? STUDY_DECK_LAYOUTS : SLIDE_LAYOUTS;
     
+    // Global cache key format: `slide-${index}-${slotName}`
     const imageCache = new Map<string, string>();
 
     if (!skipImages) {
@@ -120,11 +121,15 @@ export const generateSlidesFromSpecification = async (
         const background = chosenTheme.backgrounds[index % chosenTheme.backgrounds.length];
         const slideKey = `slide-${uuidv4()}`;
         
+        // Map global cache keys (index-based) to local layout keys (uuid-based)
         const slideImageCache = new Map<string, string>();
         Object.keys(slideSpec.content).forEach(slotName => {
-            const cacheKey = `slide-${index}-${slotName}`;
-            if (imageCache.has(cacheKey)) {
-                slideImageCache.set(`slide-${slideKey}-${slotName}`, imageCache.get(cacheKey)!);
+            // Check global cache first
+            const globalKey = `slide-${index}-${slotName}`;
+            if (imageCache.has(globalKey)) {
+                // Layouts typically construct keys as `slide-${slideKey}-${slotName}`
+                // We ensure the layout can find the image by this key.
+                slideImageCache.set(`slide-${slideKey}-${slotName}`, imageCache.get(globalKey)!);
             }
         });
 
