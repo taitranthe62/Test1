@@ -82,25 +82,48 @@ const PresentationView: React.FC<PresentationViewProps> = ({ slides, onExit }) =
                         const tableEl = element as TableElement;
                         // Use accent color for header if available, else standard gray
                         const headerBg = currentSlide.background.accentColor || '#3b82f6';
+                        
+                        // Split data into header (first row) and body (rest)
+                        const [headerRow, ...bodyRows] = tableEl.cellData;
+
                         return (
                             <table className="w-full h-full border-collapse table-fixed shadow-md bg-white/50 backdrop-blur-sm" style={{fontSize: '18px'}}>
+                                <thead>
+                                    {headerRow && (
+                                        <tr>
+                                            {headerRow.map((cell) => (
+                                                <th 
+                                                    key={cell.id} 
+                                                    className="border border-gray-300 p-3 align-middle" 
+                                                    style={{
+                                                        ...cell.style,
+                                                        backgroundColor: headerBg,
+                                                        color: '#ffffff',
+                                                        fontWeight: 'bold',
+                                                        borderColor: headerBg
+                                                    }} 
+                                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(cell.content) }}
+                                                />
+                                            ))}
+                                        </tr>
+                                    )}
+                                </thead>
                                 <tbody>
-                                    {tableEl.cellData.map((row, rowIndex) => (
-                                        <tr key={rowIndex} className={rowIndex === 0 ? "" : "even:bg-black/5"}>
+                                    {bodyRows.map((row, rowIndex) => (
+                                        <tr key={rowIndex} className="even:bg-black/5">
                                             {row.map((cell) => (
                                                 <td 
                                                     key={cell.id} 
                                                     className="border border-gray-300 p-3 align-middle" 
                                                     style={{
                                                         ...cell.style,
-                                                        backgroundColor: rowIndex === 0 ? headerBg : undefined,
-                                                        color: rowIndex === 0 ? '#fff' : 'inherit',
-                                                        fontWeight: rowIndex === 0 ? 'bold' : 'normal',
-                                                        borderColor: rowIndex === 0 ? headerBg : '#e2e8f0'
+                                                        backgroundColor: undefined, // Let CSS handle stripe
+                                                        color: 'inherit',
+                                                        fontWeight: 'normal',
+                                                        borderColor: '#e2e8f0'
                                                     }} 
                                                     dangerouslySetInnerHTML={{ __html: sanitizeHtml(cell.content) }}
-                                                >
-                                                </td>
+                                                />
                                             ))}
                                         </tr>
                                     ))}

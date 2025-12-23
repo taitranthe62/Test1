@@ -42,6 +42,29 @@ async function generateImageWithRetry(prompt: string): Promise<string> {
     throw new Error("Generation failed.");
 }
 
+function selectSmartTheme(topic: string, themePacks: ThemePack[]): ThemePack {
+    if (!themePacks || themePacks.length === 0) {
+        throw new Error("No theme packs available");
+    }
+    
+    // Default to the first one (Executive Blue) for professional consistency
+    let selectedTheme = themePacks[0]; 
+
+    const lowerTopic = (topic || '').toLowerCase();
+
+    // Heuristic keyword matching
+    if (lowerTopic.match(/nature|environment|green|plant|eco|forest|growth|health|organic/)) {
+        const greenTheme = themePacks.find(t => t.name === 'Neo Mint');
+        if (greenTheme) selectedTheme = greenTheme;
+    } else if (lowerTopic.match(/history|art|culture|classic|paper|book|study|literature/)) {
+        const paperTheme = themePacks.find(t => t.name === 'Academic Paper');
+        if (paperTheme) selectedTheme = paperTheme;
+    } 
+    // Add more conditions as themes are added
+
+    return selectedTheme;
+}
+
 export const generateSlidesFromSpecification = async (
     spec: AIPresentationSpec,
     themePacks: ThemePack[],
@@ -50,7 +73,11 @@ export const generateSlidesFromSpecification = async (
     skipImages: boolean = false
 ): Promise<Slide[]> => {
     onProgress('Đang thiết lập chủ đề...');
-    const chosenTheme = themePacks[Math.floor(Math.random() * themePacks.length)];
+    
+    // SMART THEME SELECTION instead of Random
+    const topic = spec.title || "Presentation";
+    const chosenTheme = selectSmartTheme(topic, themePacks);
+    
     const layouts = isStudyDeck ? STUDY_DECK_LAYOUTS : SLIDE_LAYOUTS;
     
     const imageCache = new Map<string, string>();
