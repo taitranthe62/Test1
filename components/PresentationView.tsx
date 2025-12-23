@@ -6,6 +6,7 @@ import RenderedText from './RenderedText';
 import { IconComponent } from './icons/library';
 import SlideBackground from './SlideBackground';
 import ChartRenderer from './ChartRenderer';
+import { sanitizeHtml } from '../utils';
 
 interface PresentationViewProps {
   slides: Slide[];
@@ -97,7 +98,7 @@ const PresentationView: React.FC<PresentationViewProps> = ({ slides, onExit }) =
                                                         fontWeight: rowIndex === 0 ? 'bold' : 'normal',
                                                         borderColor: rowIndex === 0 ? headerBg : '#e2e8f0'
                                                     }} 
-                                                    dangerouslySetInnerHTML={{ __html: cell.content }}
+                                                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(cell.content) }}
                                                 >
                                                 </td>
                                             ))}

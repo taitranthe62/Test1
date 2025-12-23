@@ -3,6 +3,7 @@ import { GoogleGenAI, Type } from '@google/genai';
 import { SLIDE_LAYOUTS, STUDY_DECK_LAYOUTS } from './templates';
 import { AIPresentationSpec, LayoutType } from './dsl.definition';
 import { safeParse } from './json.repairer';
+import { smartTruncate } from './utils';
 
 // Get available layout types dynamically to prevent hallucinations
 const AVAILABLE_LAYOUT_IDS = [...SLIDE_LAYOUTS, ...STUDY_DECK_LAYOUTS].map(l => l.type);
@@ -80,6 +81,9 @@ export async function generatePresentationFromTopic(
 
     onProgress(`Đang phân tích dữ liệu (DSL v2 Enhanced)...`);
 
+    // Smart truncate to avoid token limits while keeping context
+    const truncatedContent = smartTruncate(fileContent, 6000);
+
     const systemInstruction = `Bạn là chuyên gia thiết kế slide chuyên nghiệp.
 Nhiệm vụ: Tạo bài thuyết trình về: "${topic}".
 Văn bản: Tiếng Việt. Prompt ảnh: Tiếng Anh.
@@ -94,9 +98,11 @@ ${layoutInstructions}
 - **Table**: Dùng Markdown Table. VD: "| H1 | H2 |\\n| D1 | D2 |".
 - **Image**: { "type": "image", "prompt": "mô tả chi tiết bằng tiếng Anh" }.
 - **Quote**: Dùng layout 'quote'. Nội dung vào 'text', tác giả vào 'caption'.
+- **Statistic**: Dùng layout 'statistic'. Số liệu vào 'text', mô tả vào 'subtitle'.
+- **Timeline**: Dùng layout 'timeline'. Các mốc thời gian vào 'points'.
 
 ## 3. DỮ LIỆU NGUỒN
-${fileContent.slice(0, 6000)}
+${truncatedContent}
 
 ## 4. YÊU CẦU
 - Số slide: ${minSlides}-${maxSlides}.
@@ -104,11 +110,11 @@ ${fileContent.slice(0, 6000)}
 - Đa dạng hóa layout, tránh dùng 'content' quá nhiều.`;
 
     let attempt = 0;
-    const maxAttempts = 2;
+    const maxAttempts = 3; // Increased attempts
 
     while (attempt < maxAttempts) {
         try {
-            if (attempt > 0) onProgress(`Máy chủ bận, đang thử lại lần ${attempt}...`);
+            if (attempt > 0) onProgress(`Máy chủ bận, đang thử lại lần ${attempt + 1}...`);
             
             const response = await callGemini(ai, topic, systemInstruction, minSlides, maxSlides);
             const spec = safeParse<AIPresentationSpec>(response.text, { slides: [] });
@@ -138,7 +144,10 @@ ${fileContent.slice(0, 6000)}
                 }
                 throw new Error("Không thể kết nối với AI sau nhiều lần thử. Hãy thử rút ngắn nội dung yêu cầu.");
             }
-            await new Promise(r => setTimeout(r, 2000));
+            
+            // Exponential backoff: 1s, 2s, 4s
+            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+            await new Promise(r => setTimeout(r, delay));
         }
     }
     throw new Error("Lỗi không xác định.");

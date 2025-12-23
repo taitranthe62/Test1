@@ -1,5 +1,6 @@
 
 import React, { useEffect, useRef } from 'react';
+import { sanitizeHtml } from '../utils';
 
 declare global {
     interface Window {
@@ -16,6 +17,9 @@ interface RenderedTextProps {
 const RenderedText: React.FC<RenderedTextProps> = ({ content, style }) => {
   const ref = useRef<HTMLDivElement>(null);
   const retryCount = useRef(0);
+  
+  // Sanitize content before rendering
+  const cleanContent = sanitizeHtml(content);
 
   useEffect(() => {
     const renderMath = () => {
@@ -41,9 +45,9 @@ const RenderedText: React.FC<RenderedTextProps> = ({ content, style }) => {
     };
 
     renderMath();
-  }, [content]);
+  }, [cleanContent]);
 
-  return <div ref={ref} style={style} dangerouslySetInnerHTML={{ __html: content }} />;
+  return <div ref={ref} style={style} dangerouslySetInnerHTML={{ __html: cleanContent }} />;
 };
 
 export default RenderedText;

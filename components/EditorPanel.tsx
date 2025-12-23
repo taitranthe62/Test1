@@ -10,6 +10,7 @@ import SlideBackground from './SlideBackground';
 import ChartRenderer from './ChartRenderer';
 import { PresentationContext } from '../presentationContext';
 import { ActionTypes } from '../actions';
+import { sanitizeHtml } from '../utils';
 
 interface EditorPanelProps {
   showImageGallery: boolean;
@@ -172,7 +173,7 @@ const RenderElement = React.memo(({ element, isSelected }: { element: SlideEleme
                     })}
                     className="w-full h-full bg-transparent resize-none border-none outline-none p-2 cursor-text"
                     style={{ ...element.style, overflowY: 'auto', position: undefined, left: undefined, top: undefined, width: undefined, height: undefined, overflowWrap: 'break-word' }}
-                    dangerouslySetInnerHTML={{ __html: element.content }}
+                    dangerouslySetInnerHTML={{ __html: sanitizeHtml(element.content) }}
                 />
             ) : (
                 <RenderedText
@@ -205,7 +206,7 @@ const RenderElement = React.memo(({ element, isSelected }: { element: SlideEleme
                                                     payload: { elementId: tableEl.id, rowIndex, colIndex, newContent: e.currentTarget.innerHTML }
                                                 })}
                                                 className="w-full h-full bg-transparent outline-none cursor-text p-1"
-                                                dangerouslySetInnerHTML={{ __html: cell.content }}
+                                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(cell.content) }}
                                             />
                                         ) : (
                                             <RenderedText 
