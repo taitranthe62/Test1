@@ -11,6 +11,7 @@ export interface PresentationContextType {
 // This is primarily for type-safety; the actual value will be provided by the Provider.
 const defaultContextValue: PresentationContextType = {
   state: {
+    version: 1,
     slides: [],
     currentSlideId: null,
     selectedElementId: null,

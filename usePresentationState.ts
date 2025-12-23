@@ -34,8 +34,8 @@ const initialSlide: Slide = {
 
 
 const getInitialState = (): PresentationState => {
-    // No longer loads from anywhere. Just returns the default welcome slide.
     return {
+        version: 1,
         slides: [initialSlide],
         currentSlideId: initialSlide.id,
         selectedElementId: null,

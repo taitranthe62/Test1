@@ -126,6 +126,7 @@ export interface ThemePack {
 }
 
 export interface PresentationState {
+    version: number;
     slides: Slide[];
     currentSlideId: string | null;
     selectedElementId: string | null;

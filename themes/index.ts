@@ -49,6 +49,29 @@ export const THEME_PACKS: ThemePack[] = [
         chartColors: ['#059669', '#10b981', '#34d399', '#6ee7b7', '#a7f3d0']
       },
     ],
+  },
+  {
+    name: 'Midnight Tech',
+    titleFont: '"Roboto", sans-serif',
+    bodyFont: '"Open Sans", sans-serif',
+    accentColor: '#8b5cf6', // Violet
+    backgrounds: [
+      { 
+        color: '#0f172a', // Slate 900
+        primaryTextColor: '#f8fafc', 
+        secondaryTextColor: '#94a3b8',
+        accentColor: '#a78bfa',
+        pattern: GEOMETRIC_PATTERN,
+        chartColors: ['#8b5cf6', '#a78bfa', '#c4b5fd', '#6366f1', '#ec4899']
+      },
+      { 
+        color: '#1e293b', // Slate 800
+        primaryTextColor: '#ffffff', 
+        secondaryTextColor: '#cbd5e1',
+        accentColor: '#8b5cf6',
+        chartColors: ['#a78bfa', '#c4b5fd', '#8b5cf6', '#6366f1', '#f472b6']
+      },
+    ],
   }
 ];
 

@@ -53,13 +53,16 @@ function selectSmartTheme(topic: string, themePacks: ThemePack[]): ThemePack {
     const lowerTopic = (topic || '').toLowerCase();
 
     // Heuristic keyword matching
-    if (lowerTopic.match(/nature|environment|green|plant|eco|forest|growth|health|organic/)) {
+    if (lowerTopic.match(/nature|environment|green|plant|eco|forest|growth|health|organic|sustain/)) {
         const greenTheme = themePacks.find(t => t.name === 'Neo Mint');
         if (greenTheme) selectedTheme = greenTheme;
-    } else if (lowerTopic.match(/history|art|culture|classic|paper|book|study|literature/)) {
+    } else if (lowerTopic.match(/history|art|culture|classic|paper|book|study|literature|law/)) {
         const paperTheme = themePacks.find(t => t.name === 'Academic Paper');
         if (paperTheme) selectedTheme = paperTheme;
-    } 
+    } else if (lowerTopic.match(/tech|code|cyber|digital|future|ai|robot|space|dark|night|modern|innovation/)) {
+        const darkTheme = themePacks.find(t => t.name === 'Midnight Tech');
+        if (darkTheme) selectedTheme = darkTheme;
+    }
     // Add more conditions as themes are added
 
     return selectedTheme;
