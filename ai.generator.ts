@@ -8,6 +8,16 @@ import { smartTruncate } from './utils';
 // Get available layout types dynamically to prevent hallucinations
 const AVAILABLE_LAYOUT_IDS = [...SLIDE_LAYOUTS, ...STUDY_DECK_LAYOUTS].map(l => l.type);
 
+// Priority list of models to try. If one fails, the next one is used automatically.
+// 1. Gemini 3 Flash: Fast, smart, recommended for text.
+// 2. Gemini 2.0 Flash Exp: Extremely stable and fast experimental channel.
+// 3. Gemini 2.0 Pro Exp: High intelligence backup if Flash fails.
+const MODELS_TO_TRY = [
+    "gemini-3-flash-preview",
+    "gemini-2.0-flash-exp",
+    "gemini-2.0-pro-exp-02-05"
+];
+
 const COMPACT_PRESENTATION_SCHEMA = {
   type: Type.OBJECT,
   properties: {
@@ -51,16 +61,16 @@ const COMPACT_PRESENTATION_SCHEMA = {
   required: ["slides"]
 };
 
-async function callGemini(ai: GoogleGenAI, topic: string, systemInstruction: string, minSlides: number, maxSlides: number) {
+async function callGemini(ai: GoogleGenAI, topic: string, systemInstruction: string, minSlides: number, maxSlides: number, model: string) {
     return await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
+        model: model,
         contents: [{ parts: [{ text: `Tạo bài thuyết trình về chủ đề "${topic}" với khoảng ${minSlides} đến ${maxSlides} slide. Trả về JSON.` }] }],
         config: { 
             systemInstruction,
             responseMimeType: "application/json", 
             responseSchema: COMPACT_PRESENTATION_SCHEMA,
-            temperature: 0.3, // Lower temperature for structured data consistency
-            thinkingConfig: { thinkingBudget: 0 }
+            temperature: 0.4, // Slightly higher for creativity in backup models
+            thinkingConfig: model.includes("gemini-3") ? { thinkingBudget: 0 } : undefined // Only V3 supports thinking config param currently
         }
     });
 }
@@ -76,13 +86,10 @@ export async function generatePresentationFromTopic(
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const layouts = isStudyDeck ? STUDY_DECK_LAYOUTS : SLIDE_LAYOUTS;
     
-    // Create a rich text description of available layouts
     const layoutInstructions = layouts.map(l => `- "${l.type}": ${l.usageGuideline} (Slots: ${l.slots.join(', ')})`).join('\n');
 
-    onProgress(`Đang phân tích dữ liệu (DSL v2 Enhanced)...`);
-
-    // Smart truncate to avoid token limits while keeping context
-    const truncatedContent = smartTruncate(fileContent, 6000);
+    // Smart truncate to avoid token limits
+    const truncatedContent = smartTruncate(fileContent, 15000); 
 
     const systemInstruction = `Bạn là chuyên gia thiết kế slide chuyên nghiệp.
 Nhiệm vụ: Tạo bài thuyết trình về: "${topic}".
@@ -109,46 +116,44 @@ ${truncatedContent}
 - Đảm bảo JSON hợp lệ. Không được bịa ra layout không có trong danh sách trên.
 - Đa dạng hóa layout, tránh dùng 'content' quá nhiều.`;
 
-    let attempt = 0;
-    const maxAttempts = 3; // Increased attempts
+    let lastError: any = null;
 
-    while (attempt < maxAttempts) {
+    // Retry Strategy: Iterate through available models
+    for (const model of MODELS_TO_TRY) {
         try {
-            if (attempt > 0) onProgress(`Máy chủ bận, đang thử lại lần ${attempt + 1}...`);
+            onProgress(`Đang kết nối với AI (${model})...`);
             
-            const response = await callGemini(ai, topic, systemInstruction, minSlides, maxSlides);
+            const response = await callGemini(ai, topic, systemInstruction, minSlides, maxSlides, model);
             const spec = safeParse<AIPresentationSpec>(response.text, { version: '1.0', slides: [] });
             
             if (spec.slides && spec.slides.length > 0) {
                 // Double check layout validity
                 spec.slides = spec.slides.map(s => {
                     if (!layouts.some(l => l.type === s.layout)) {
-                        console.warn(`Invalid layout ${s.layout}, falling back to content`);
                         return { ...s, layout: 'content' as LayoutType };
                     }
                     return s;
                 });
                 
-                onProgress(`Đã soạn thảo thành công ${spec.slides.length} slide.`);
+                onProgress(`Thành công! Đang tạo ${spec.slides.length} slide...`);
                 return spec;
             }
-            throw new Error("Dữ liệu trả về trống.");
-            
         } catch (err: any) {
-            attempt++;
-            console.warn(`Lần thử ${attempt} thất bại:`, err);
-            
-            if (attempt >= maxAttempts) {
-                if (err.message?.includes("entity was not found")) {
-                    throw new Error("Lỗi API Key: Vui lòng kiểm tra lại cấu hình Billing hoặc Key.");
-                }
-                throw new Error("Không thể kết nối với AI sau nhiều lần thử. Hãy thử rút ngắn nội dung yêu cầu.");
+            console.warn(`Model ${model} thất bại:`, err);
+            lastError = err;
+            // If it's a billing/key error, stop immediately, don't retry other models as they will fail too
+            if (err.message?.includes("API Key") || err.message?.includes("Billing")) {
+                throw err;
             }
-            
-            // Exponential backoff: 1s, 2s, 4s
-            const delay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-            await new Promise(r => setTimeout(r, delay));
+            // Otherwise, continue to the next model in the list
+            onProgress(`Model ${model} phản hồi chậm, đang chuyển kênh dự phòng...`);
         }
     }
-    throw new Error("Lỗi không xác định.");
+
+    // If all models fail
+    if (lastError?.message?.includes("entity was not found")) {
+        throw new Error("Lỗi API Key: Dự án Google Cloud của bạn chưa kích hoạt model này hoặc chưa bật Billing. Vui lòng chọn dự án khác.");
+    }
+    
+    throw new Error("Hệ thống AI đang quá tải. Vui lòng thử lại sau ít phút hoặc chọn API Key khác.");
 }
